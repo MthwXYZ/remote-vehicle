@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div class="button-group">
+        <button class="button" id="up">&#8593;</button>
+        <div class="arrows">
+            <button class="button" id="left">&#8592;</button>
+            <button class="button" id="down">&#8595;</button>
+            <button class="button" id="right">&#8594;</button>
+        </div>
+        <div class="slider-container">
+            <input type="range" id="speedSlider" min="0" max="9" value="0" onchange="updateSliderValue()">
+            <div id="sliderValue" class="slider-value">0</div>
+        </div>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.button');
+        let intervalIds = {};
+
+        buttons.forEach(button => {
+            button.addEventListener('mousedown', () => buttonPressed(button.id));
+            button.addEventListener('touchstart', () => buttonPressed(button.id));
+            button.addEventListener('mouseup', () => buttonReleased(button.id));
+            button.addEventListener('touchend', () => buttonReleased(button.id));
+            button.addEventListener('mouseleave', () => buttonReleased(button.id));
+            button.addEventListener('touchcancel', () => buttonReleased(button.id));
+        });
+
+        const speedSlider = document.getElementById('speedSlider');
+        const sliderValue = document.getElementById('sliderValue');
+
+        speedSlider.addEventListener('input', () => {
+            updateSliderValue(speedSlider.value);
+        });
+
+
+        speedSlider.addEventListener('change', () => {
+            sendSliderValue();
+        });
+
+        function updateSliderValue(value) {
+            sliderValue.textContent = value;
+        }
+
+        function sendSliderValue() {
+            const value = speedSlider.value;
+            console.log("Slider Value: " + value);
+            fetch('/setSliderValue?value=' + value); // sending value to main.cpp
+        }   
+
+        function buttonPressed(direction) {
+            console.log("Button pressed: " + direction);
+            document.getElementById(direction).classList.add('active');
+            intervalIds[direction] = setInterval(function() {
+                console.log("Continuously moving " + direction);
+                fetch('/' + direction + 'ButtonPressed');
+            }, 100);
+        }
+
+        function buttonReleased(direction) {
+            console.log("Button released: " + direction);
+            clearInterval(intervalIds[direction]);
+            document.getElementById(direction).classList.remove('active');
+            fetch('/' + direction + 'ButtonReleased');
+        }
+
+    </script>
+</body>
+
+</html>

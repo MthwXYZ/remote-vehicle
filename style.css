@@ -1,0 +1,97 @@
+html {
+    font-family: Helvetica;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+body {
+    transition: background-color 0.3s ease;
+    background-color: #f0f0f0;
+}
+
+.button {
+    border: none;
+    color: white;
+    padding: 20px 30px;
+    text-decoration: none;
+    font-size: 20px;
+    margin: 5px;
+    cursor: pointer;
+    background-color: green;
+}
+
+.button.active {
+    background-color: blue;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.arrows {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.slider-container {
+    position: relative;
+    width: 80%;
+}
+
+#speedSlider {
+    margin-top: 20px;
+    width: 100%;
+    appearance: none;
+    height: 30px;
+    border-radius: 15px;
+    background: blue;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+#speedSlider:hover {
+    opacity: 1;
+}
+
+#speedSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgb(0, 0, 0);
+    cursor: pointer;
+}
+
+#speedSlider::-moz-range-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+}
+
+.slider-container label {
+    position: absolute;
+    top: -25px;
+    font-size: 16px;
+    color: black; /* Zmieniono kolor etykiet na czarny */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.slider-value {
+    font-size: 24px; /* Zwiększono rozmiar czcionki */
+    font-weight: bold; /* Ustawiono pogrubienie czcionki */
+    position: absolute;
+    bottom: -25px; /* Zmieniono odstęp od dołu */
+    transform: translateX(-50%); /* Wyśrodkowanie wartości suwaka */
+}
