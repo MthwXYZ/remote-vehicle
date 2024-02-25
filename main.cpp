@@ -17,11 +17,13 @@
 #define led 8
 
 
-
 WiFiServer server(80);
 WiFiClient client;
 
 QueueHandle_t xQueue;
+
+void loop2(void * parameter);
+
 
 
 void handleButton(int pin, bool buttonPressed,int &value) {
@@ -76,7 +78,6 @@ void serveCssFile(WiFiClient client) {
 }
 
 void setup() {
-
   Serial.begin(115200);
 
   const char *ssid = "Robot";
@@ -106,6 +107,23 @@ void setup() {
   Serial.println(myIP);
   server.begin();
 
+
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  xQueue = xQueueCreate(1, sizeof(int));
+  xTaskCreatePinnedToCore(
+      loop2,   
+      "Task1", 
+      10000,      
+      NULL,       
+      1,           
+      NULL,        
+      0          
+  );
+
+
 }
 
 
@@ -123,18 +141,18 @@ void loop() {
   if (xQueueReceive(xQueue, &cmFromQueue, 0) == pdTRUE) {
     //Serial.println(cmFromQueue);
     if (cmFromQueue < 10){
-   // Serial.println("CM < 10");
+    //Serial.println("CM < 10");
     digitalWrite(led, HIGH);
     }
     else{
-   // Serial.println("CM >= 10");
+    //Serial.pritln("CM >= 10");n
     digitalWrite(led, LOW);
   }
 
   }
    if (client)
    {
-    // Serial.println("New Client.");
+
      String currentLine = "";
 
      while (client.connected())
@@ -146,7 +164,6 @@ void loop() {
          char c = client.read();
          if (c == '\n')
          {
-           
            if (currentLine.startsWith("GET /upButtonPressed")) //handling buttons
            {
              upButtonPressed = true;
@@ -166,6 +183,7 @@ void loop() {
            {
              leftButtonPressed = true;
              handleButton(leftF, leftButtonPressed, sliderValue);
+
              break;
            }
            else if (currentLine.startsWith("GET /leftButtonReleased"))
@@ -235,3 +253,25 @@ void loop() {
   }
 
 }
+void loop2(void *parameter){
+
+  int cm;        //odległość w cm
+  long time;     //długość powrotnego impulsu w uS
+
+ while (1) {
+  digitalWrite(Trig, LOW); 
+  vTaskDelay(2 / portTICK_PERIOD_MS);
+  digitalWrite(Trig, HIGH);
+  vTaskDelay(10 / portTICK_PERIOD_MS);
+  digitalWrite(Trig, LOW);
+  digitalWrite(Echo, HIGH); 
+  time = pulseIn(Echo, HIGH);
+  cm = time / 58;   
+
+
+  xQueueSend(xQueue, &cm, portMAX_DELAY);
+  vTaskDelay(100 / portTICK_PERIOD_MS);
+  }
+
+}
+
